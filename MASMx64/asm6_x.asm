@@ -1,62 +1,51 @@
 include C:\masm64\include64\masm64rt.inc
-
 .data
-    mas1 dq 1, 2, 3, 4, 5, 6, 7, 8, 9, 10; объявление массива
-    len1 equ ($-mas1)/type mas1 ; определение длины mas1
+	x1 dq 2.0
 
-    st1 db ?, 0 ; создание форматных строк для ответа
-    st2 db ?, 0
+	op1 dq 7.0
+	op2 dq 0.3
+	
+	z dq 0.0
+	step1 dq 3.5
 
-    m db 3
-    l db 2
+	res1 dd 0
+	res2 dd 0
+	res3 dd 0
+	res4 dd 0
+	res5 dd 0
 
-    msg1 db "Количество: %d", 0 ; объявление строк для вывода
-    msg2 db "Числа: %d", 0, "%d", 10, "%d", 10, "%d", 0
-    msg3 db "%d", 0
+	titl1	db "Анисимов Виктор, Y2438 ЛР №4", 0
 
-    titl1 db "Анисимов Виктор, Y2438 ЛР №2 часть 2", 0
+	buf1 dq 5 dup(0)
+	inf1 db "Y = 7(x + 0,3)",10,10,"Ответ: %d, %d, %d, %d, %d",0ah,0ah
 
 .code
-main proc              ; точка входа
-    xor rdi, rdi        ; обнуление регистра для использования его в качестве счётчика
-    lea rbx, mas1       ; запись в регистр rbx адреса нулевого элемента массива
-    mov rcx, len1       ; запись в регистр rcx длины массива
-    mov rsi, 0
+WinMain proc
+sub rsp,28h
+mov rbp,rsp
+finit
+lea esi,res1
+mov ecx, 5
+m1: fld _x
+fadd _op2
+fmul _op1
+fld _x
+fadd _step
+fstp _x
+loop m1
+  fisttp res1
+  fisttp res2
+  fisttp res3
+  fisttp res4
+  fisttp res5
+movsxd r10,res1
+movsxd r11,res2
+movsxd r12,res3
+movsxd r13,res4
+movsxd r14,res5
 
-m2:
-    
-    push rdx
-    push rcx
-
-    mov ax, [rbx]
-    push rbx
-    
-    mov bl, m
-    div bl
-
-    cmp ah, l
-    
-    jnz next
-        pop rbx
-        mov ax, [rbx]
-        push rbx
-        add si, ax
-        inc rdi
-;        invoke wsprintf, ADDR msg2, si
-    
-next:
-    pop rbx
-    add rbx, type mas1
-    pop rcx
-    pop rdx
-        loop m2
-    
-    invoke wsprintf, ADDR st1, ADDR msg1, rdi
-    invoke MessageBox, 0, ADDR st1, ADDR titl1, MB_ICONINFORMATION
-    
-    invoke wsprintf, ADDR st2, ADDR msg3, si
-    invoke MessageBox, 0, ADDR st2, ADDR titl1, MB_ICONINFORMATION 
-
-    invoke ExitProcess, 0                    ; возврат управления ОС и освобождение ресурсов
-main endp                                    ; окончание процедуры
-end                                                 
+invoke wsprintf,ADDR buf,ADDR ifmt,r10,r11,r12,r13,r14
+invoke MessageBox,0,addr buf,addr tit1,MB_ICONINFORMATION;
+invoke ExitProcess,0
+WinMain endp
+End
